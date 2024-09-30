@@ -70,7 +70,7 @@ func UploadProduct(c *fiber.Ctx) error {
 // ListProducts shows all the products uploaded by a user
 func ListProducts(c *fiber.Ctx) error {
 	var products []models.Product
-	database.DB.Find(&products)
+	database.DB.Find(&products).Where("status = ?", "approved")
 
 	return c.JSON(products)
 }
