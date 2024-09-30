@@ -17,6 +17,7 @@ func SetupRoutes(app *fiber.App) {
 	// Product routes
 	app.Post("/api/product", handlers.UploadProduct)
 	app.Get("/api/products", handlers.ListProducts)
+	app.Post("/upload", handlers.UploadImageHandler)
 
 	// Admin routes (Admin only)
 	app.Patch("/api/admin/product/:id/approve", middlewares.AdminOnly, handlers.AdminApproveProduct)
