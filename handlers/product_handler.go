@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v4"
 	"inventory-management/database"
 	"inventory-management/models"
-	"inventory-management/s3"
 )
 
 // UploadProduct allows a user to upload a product
@@ -14,24 +14,40 @@ func UploadProduct(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Cannot parse JSON"})
 	}
 
-	userID := c.Locals("userID").(uint)
-	product.UserID = userID
+	token := c.Locals("user").(*jwt.Token)     // Assert the user to *jwt.Token
+	claims, ok := token.Claims.(jwt.MapClaims) // Extract claims as jwt.MapClaims
+	if !ok || !token.Valid {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Unauthorized, invalid token",
+		})
+	}
+
+	// Get the user ID from claims
+	userIDFloat, exists := claims["id"].(float64) // assuming your claims have an "id" key
+	if !exists {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Unauthorized, user ID not found in token",
+		})
+	}
+
+	// Convert userID to uint
+	product.UserID = uint(userIDFloat)
 	product.Status = "pending"
 
 	// Upload image to S3
-	file, err := c.FormFile("image")
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "No file uploaded"})
-	}
-
-	// Upload to S3 and get the image URL
-	imageURL, err := s3.UploadToS3(file, "products")
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to upload image"})
-	}
-
-	// Set the uploaded image URL to the product
-	product.ImageURL = []string{imageURL}
+	//file, err := c.FormFile("image")
+	//if err != nil {
+	//	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "No file uploaded"})
+	//}
+	//
+	//// Upload to S3 and get the image URL
+	//imageURL, err := s3.UploadToS3(file, "products")
+	//if err != nil {
+	//	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to upload image"})
+	//}
+	//
+	//// Set the uploaded image URL to the product
+	//product.ImageURL = []string{imageURL}
 
 	// Save the product to the database
 	result := database.DB.Create(&product)

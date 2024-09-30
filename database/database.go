@@ -1,6 +1,7 @@
 package database
 
 import (
+	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"inventory-management/models"
@@ -12,8 +13,14 @@ var DB *gorm.DB
 
 // ConnectDB initializes the database connection and returns a Database instance
 func ConnectDB() *Database {
+	// Load .env file
+	err := godotenv.Load("app.env")
+	if err != nil {
+		log.Fatalf("Error loading .env file: %v", err)
+	}
+
 	dsn := os.Getenv("DB_DSN")
-	var err error
+	//var err error
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Failed to connect to the database: %v", err)

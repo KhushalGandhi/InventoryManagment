@@ -5,13 +5,13 @@ import (
 )
 
 type Product struct {
-	ID          uint      `json:"id" gorm:"primaryKey"`
-	UserID      uint      `json:"user_id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	Price       float64   `json:"price"`
-	Quantity    int       `json:"quantity"`
-	Status      string    `json:"status"`
-	ImageURL    []string  `json:"image_url" gorm:"type:text[]"`
-	CreatedAt   time.Time `json:"created_at"`
+	ID          uint      `json:"id" gorm:"primaryKey;autoIncrement:true"`
+	UserID      uint      `gorm:"user_id" json:"user_id"`
+	Name        string    `gorm:"name" json:"name"`
+	Description string    `gorm:"description" json:"description"`
+	Price       float64   `gorm:"price" json:"price"`
+	Quantity    int       `gorm:"quantity" json:"quantity"`
+	Status      string    `gorm:"status" json:"status"`
+	ImageURL    string    `gorm:"image_url" json:"image_url"`
+	CreatedAt   time.Time `gorm:"created_at" json:"created_at"`
 }
